@@ -1,4 +1,4 @@
-package com.zellfresh
+package com.zellfresh.ui.screen
 
 
 import androidx.compose.foundation.layout.Box

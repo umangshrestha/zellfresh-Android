@@ -1,4 +1,4 @@
-package com.zellfresh
+package com.zellfresh.ui.screen
 
 
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 
 @Composable
-fun OrdersScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
@@ -27,5 +27,4 @@ fun OrdersScreen(navController: NavHostController, modifier: Modifier = Modifier
             Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon")
         }
     }
-
 }

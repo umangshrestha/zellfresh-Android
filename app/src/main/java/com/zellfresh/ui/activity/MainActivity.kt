@@ -1,4 +1,4 @@
-package com.zellfresh
+package com.zellfresh.ui.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,6 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.zellfresh.ui.screen.CartScreen
+import com.zellfresh.ui.screen.HomeScreen
+import com.zellfresh.ui.screen.LoginScreen
+import com.zellfresh.ui.screen.OrdersScreen
+import com.zellfresh.ui.screen.ProductsScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +36,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
             ZellfreshTheme {
                 val navController = rememberNavController()
@@ -60,6 +64,12 @@ class MainActivity : ComponentActivity() {
                         navController = navController, startDestination = "home",
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable(route = "login") {
+                            LoginScreen(
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
                         composable(route = "home") {
                             HomeScreen(
                                 navController = navController,
@@ -84,6 +94,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }
+
                     }
                 }
             }

@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
+
 }
 
 android {
@@ -28,16 +33,16 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "API_URL", "\"https://zellfresh.com/api\"")
-            buildConfigField("String", "WS_URL", "\"wss://zellfresh.com/api\"")
-            buildConfigField("String", "GRAPHQL_URL", "\"wss://zellfresh.com/api\"")
+            buildConfigField("String", "WS_URL", "\"wss://zellfresh.com/graphql\"")
+            buildConfigField("String", "GRAPHQL_URL", "\"wss://zellfresh.com/graphql\"")
         }
 
         debug {
             isDebuggable = true
             isMinifyEnabled = false
-            buildConfigField("String", "BASE_URL", "\"http://localhost:3000/api\"")
-            buildConfigField("String", "WS_URL", "\"wss://localhost:3000/api\"")
-            buildConfigField("String", "GRAPHQL_URL", "\"wss://localhost:3000/api\"")
+            buildConfigField("String", "API_URL", "\"http://localhost:3000/api\"")
+            buildConfigField("String", "WS_URL", "\"wss://localhost:3000/graphql\"")
+            buildConfigField("String", "GRAPHQL_URL", "\"wss://localhost:3000/graphql\"")
         }
     }
     compileOptions {
@@ -73,7 +78,12 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.datastore.preferences.core.jvm)
+    implementation(libs.play.services.auth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.io.mock)
+    testImplementation(libs.androidx.arch.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -84,6 +94,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
-    implementation(libs.google.play.services.location)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }

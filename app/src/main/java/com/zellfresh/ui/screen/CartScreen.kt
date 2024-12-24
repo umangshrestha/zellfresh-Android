@@ -1,4 +1,5 @@
-package com.zellfresh
+package com.zellfresh.ui.screen
+
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,19 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 
-
 @Composable
-fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+fun CartScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            text = "Home Page",
+            text = "Products Page",
             modifier = modifier
         )
-        IconButton(onClick = { navController.navigate("products") }) {
+        IconButton(onClick = { navController.navigate("home") }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon")
         }
     }
+
 }

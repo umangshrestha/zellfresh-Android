@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.2"
-kotlin = "1.9.0"
+kotlin = "2.1.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -10,9 +10,16 @@ activityCompose = "1.9.3"
 composeBom = "2024.12.01"
 ktor = "3.0.2"
 coroutines = "1.9.0"
-play-services-location = "21.3.0"
-navigation = "2.8.5"
 navigationCompose = "2.8.5"
+kotlinxSerialization = "2.1.0"
+kotlinxSerializationJson = "1.7.3"
+datastorePreferencesCoreJvm = "1.1.1"
+hilt = "2.54"
+ksp = "2.1.0-1.0.29"
+androidXArchCore="2.2.0"
+kotlinXCoroutineTest="1.9.0"
+ioMockk="1.13.7"
+playServicesAuth = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,10 +40,20 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-google-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+kotlinx-serialization-json = {group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+androidx-datastore-preferences-core-jvm = { group = "androidx.datastore", name = "datastore-preferences-core-jvm", version.ref = "datastorePreferencesCoreJvm" }
+hilt-android = { group= "com.google.dagger", name="hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name="hilt-android-compiler", version.ref = "hilt" }
+androidx-arch-core = { group = "androidx.arch.core", name="core-testing", version.ref = "androidXArchCore" }
+io-mock = { group = "io.mockk", name="mockk", version.ref = "ioMockk" }
+kotlinx-coroutines-test ={ group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-test", version.ref = "kotlinXCoroutineTest" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerialization" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
