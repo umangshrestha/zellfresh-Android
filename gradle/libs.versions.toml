@@ -13,7 +13,7 @@ coroutines = "1.9.0"
 navigationCompose = "2.8.5"
 kotlinxSerialization = "2.1.0"
 kotlinxSerializationJson = "1.7.3"
-datastorePreferencesCoreJvm = "1.1.1"
+datastorePreferences = "1.1.1"
 hilt = "2.54"
 ksp = "2.1.0-1.0.29"
 androidXArchCore="2.2.0"
@@ -36,19 +36,20 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+ktor-client-core = { group = "io.ktor", name="ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = {group =  "io.ktor", name="ktor-client-okhttp", version.ref = "ktor" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-android", version.ref = "coroutines" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = {group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-androidx-datastore-preferences-core-jvm = { group = "androidx.datastore", name = "datastore-preferences-core-jvm", version.ref = "datastorePreferencesCoreJvm" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 hilt-android = { group= "com.google.dagger", name="hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name="hilt-android-compiler", version.ref = "hilt" }
 androidx-arch-core = { group = "androidx.arch.core", name="core-testing", version.ref = "androidXArchCore" }
 io-mock = { group = "io.mockk", name="mockk", version.ref = "ioMockk" }
 kotlinx-coroutines-test ={ group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-test", version.ref = "kotlinXCoroutineTest" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

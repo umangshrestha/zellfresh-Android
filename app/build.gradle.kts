@@ -8,6 +8,10 @@ plugins {
 
 }
 
+hilt {
+    enableAggregatingTask = false
+}
+
 android {
     namespace = "com.zellfresh"
     compileSdk = 35
@@ -78,7 +82,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.datastore.preferences.core.jvm)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.auth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -97,5 +101,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
+    implementation(libs.material.icons.extended)
     ksp(libs.hilt.compiler)
 }
