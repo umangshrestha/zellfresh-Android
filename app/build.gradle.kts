@@ -36,17 +36,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_URL", "\"https://zellfresh.com/api\"")
-            buildConfigField("String", "WS_URL", "\"wss://zellfresh.com/graphql\"")
-            buildConfigField("String", "GRAPHQL_URL", "\"wss://zellfresh.com/graphql\"")
-        }
-
-        debug {
-            isDebuggable = true
-            isMinifyEnabled = false
-            buildConfigField("String", "API_URL", "\"http://localhost:3000/api\"")
-            buildConfigField("String", "WS_URL", "\"wss://localhost:3000/graphql\"")
-            buildConfigField("String", "GRAPHQL_URL", "\"wss://localhost:3000/graphql\"")
         }
     }
     compileOptions {
@@ -98,6 +87,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.logging)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)

@@ -4,22 +4,40 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.zellfresh.client.auth.dto.LoginState
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val THEME_PREFERENCES_KEY = "is_dark_theme"
+private const val LOGIN_STATE_KEY = "login_state"
 
 @Singleton
 class DataStoreRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
     private val _isDarkTheme = booleanPreferencesKey(name = THEME_PREFERENCES_KEY)
-    val isDarkTheme = dataStore.data.map { preferences -> preferences[_isDarkTheme] ?: false }
+    val isDarkTheme = dataStore.data.map { it[_isDarkTheme] ?: false }
+
+    private val _loginStateKey = stringPreferencesKey(name = LOGIN_STATE_KEY)
+    val loginState = dataStore.data.map { preferences ->
+        preferences[_loginStateKey]?.let {
+            Json.decodeFromString<LoginState>(it)
+        } ?: LoginState.None
+    }
 
     suspend fun setTheme(isDarkTheme: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[_isDarkTheme] = isDarkTheme
+        dataStore.edit {
+            it[_isDarkTheme] = isDarkTheme
+        }
+    }
+
+    suspend fun saveLoginState(loginState: LoginState) {
+        dataStore.edit {
+            it[_loginStateKey] = Json.encodeToString(loginState)
         }
     }
 }
