@@ -1,49 +1,65 @@
 package com.zellfresh.ui.screen
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.zellfresh.client.ListCategoriesQuery
+import com.zellfresh.client.apolloClient
+import com.zellfresh.ui.components.ImageButton
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.NotificationEvent
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun HomeScreen(onNavigate: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            text = "This is Home Page",
-            modifier = modifier
+    var categoriesList by remember {
+        mutableStateOf(
+            emptyList<ListCategoriesQuery.Category>()
         )
-        IconButton(
-            onClick = onNavigate,
-        ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon")
-        }
-        Button(
-            onClick = {
+    }
+    LaunchedEffect(Unit) {
+        try {
+            val response = apolloClient.query(ListCategoriesQuery()).execute()
+            if (response.hasErrors() || response.data == null) {
                 scope.launch {
                     NotificationController.notify(
-                        NotificationEvent("APPLE")
+                        NotificationEvent(
+                            message = response.errors?.get(0)?.message ?: "Something went wrong",
+                            actionLabel = "Retry"
+                        )
                     )
                 }
-            },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            Text(text = "Notify")
+            }
+            categoriesList = response.data?.categories ?: emptyList()
+        } catch (e: Exception) {
+            scope.launch {
+                NotificationController.notify(
+                    NotificationEvent(
+                        message = e.message ?: "Something went wrong",
+                        actionLabel = "Retry"
+                    )
+                )
+            }
+        }
+    }
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        items(categoriesList) { category ->
+            ImageButton(url = category.imageUrl,
+                contentDescription = category.name,
+                text = category.name,
+                onClick = {
+                    onNavigate(category.navigateUrl)
+                })
         }
     }
 }

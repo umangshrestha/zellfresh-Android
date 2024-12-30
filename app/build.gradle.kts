@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.logging)
     implementation(libs.apollo.runtime)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.ok.http)
     implementation(libs.apollo.normalized.cache)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)

@@ -10,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,6 +34,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.zellfresh.client.auth.AuthViewModel
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.ObserveAsEvents
@@ -79,7 +80,7 @@ fun MainScreen(
                     title = {
                         Text(text = appName, color = Color.White, modifier = Modifier.clickable(
                             onClick = {
-                                navController.navigate("login")
+                                navController.navigate("home")
                             }
                         ))
                     },
@@ -108,7 +109,10 @@ fun MainScreen(
             },
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            Text(text = authViewModel.accountDetails.value?.name ?: "Guest", modifier = Modifier.padding(innerPadding))
+            Text(
+                text = authViewModel.accountDetails.value?.name ?: "Guest",
+                modifier = Modifier.padding(innerPadding)
+            )
             NavHost(
                 navController = navController, startDestination = "home",
                 modifier = Modifier.padding(innerPadding)
@@ -121,15 +125,18 @@ fun MainScreen(
                 }
                 composable(route = "home") {
                     HomeScreen(
-                        onNavigate = {
-                            navController.navigate("products")
-                        },
+                        onNavigate = { navController.navigate(it) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
-                composable(route = "products") {
+                composable(
+                    route = "/products?category={category}",
+                    arguments = listOf(navArgument("category") {
+                        type = NavType.StringType
+                    })
+                ) { backStackEntry ->
                     ProductsScreen(
-                        navController = navController,
+                        category = backStackEntry.arguments?.getString("Category"),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
