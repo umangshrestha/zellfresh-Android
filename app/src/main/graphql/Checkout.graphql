@@ -1,0 +1,5 @@
+mutation Checkout($paymentMethod: PaymentMethod!) {
+  checkout(paymentMethod: $paymentMethod) {
+    orderId
+  }
+}

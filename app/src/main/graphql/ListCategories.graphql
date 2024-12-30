@@ -1,0 +1,9 @@
+query ListCategories {
+    categories {
+        name
+        icon
+        imageUrl
+        navigateUrl
+        isAvailable
+    }
+}

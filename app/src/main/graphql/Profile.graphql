@@ -1,0 +1,14 @@
+query Profile{
+    me {
+        email
+        name
+        phone
+        defaultAddress {
+            addressId
+            apt
+            street
+            zip
+            additionalInfo
+        }
+    }
+}

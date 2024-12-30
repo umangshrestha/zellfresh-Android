@@ -1,0 +1,34 @@
+query CheckoutPage{
+    cart {
+        items {
+            quantity
+            product {
+                name
+                description
+                unit
+                price
+                imageUrl
+                availableQuantity
+            }
+        }
+        checkoutDetails {
+            subTotal
+            totalPrice
+            tax
+            taxPercentage
+            deliveryPrice
+            enableCheckout
+        }
+    }
+    me {
+        email
+        name
+        phone
+        defaultAddress {
+            apt
+            street
+            zip
+            additionalInfo
+        }
+    }
+}

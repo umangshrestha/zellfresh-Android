@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.zellfresh.client.auth.dto.LoginState
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -38,6 +40,28 @@ class DataStoreRepository @Inject constructor(
     suspend fun saveLoginState(loginState: LoginState) {
         dataStore.edit {
             it[_loginStateKey] = Json.encodeToString(loginState)
+        }
+    }
+
+    suspend fun loadTokens(): BearerTokens? {
+        return when (val state = loginState.firstOrNull()) {
+            is LoginState.AuthToken ->
+                BearerTokens(state.accessToken, state.refreshToken)
+
+            is LoginState.GuestToken ->
+                BearerTokens(state.guestToken, "")
+
+            else -> null
+        }
+    }
+
+    suspend fun getAccessToken(): String? {
+        return when (val state = loginState.firstOrNull()) {
+            is LoginState.AuthToken ->
+                state.accessToken
+            is LoginState.GuestToken ->
+                state.guestToken
+            else -> null
         }
     }
 }

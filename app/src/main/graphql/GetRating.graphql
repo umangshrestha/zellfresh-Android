@@ -1,0 +1,6 @@
+query GetRating($productId: String!) {
+    review(productId: $productId) {
+        rating
+        comment
+    }
+}

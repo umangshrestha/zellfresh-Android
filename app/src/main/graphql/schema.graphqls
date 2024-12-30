@@ -1,0 +1,268 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ProductReview {
+  userId: String!
+  productId: String!
+  rating: Float!
+  comment: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Rating {
+  rating: Float!
+  count: Int!
+}
+
+type Product {
+  productId: String!
+  name: String!
+  imageUrl: String!
+  description: String
+  price: Float!
+  availableQuantity: Int!
+  limitPerTransaction: Int!
+  unit: String!
+  category: String!
+  rating: Rating!
+  badgeText: String!
+  tags: [String!]!
+  createdAt: String!
+  updatedAt: String!
+  reviews: [ProductReview!]!
+}
+
+type Pagination {
+  limit: Int!
+  next: String
+}
+
+type PaginatedProduct {
+  items: [Product!]!
+  pagination: Pagination!
+}
+
+type Address {
+  addressId: String!
+  apt: String
+  street: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  additionalInfo: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type User {
+  userId: String!
+  name: String
+  email: String
+  role: String!
+  imageUrl: String
+  phone: String
+  defaultAddressId: String
+  defaultAddress: Address
+  address(limit: Int! = 4): [Address!]!
+  blocked: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CheckoutDetails {
+  deliveryPrice: Float!
+  subTotal: Float!
+  tax: Float!
+  discount: Float!
+  taxPercentage: Float!
+
+  """Total price of the order including delivery charge"""
+  totalPrice: Float!
+  enableCheckout: Boolean!
+}
+
+type CartItem {
+  productId: String!
+  product: Product
+  quantity: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type OrderReview {
+  rating: Float!
+  comment: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type DeliveryContactDetails {
+  name: String!
+  phone: String!
+  email: String!
+}
+
+type OrderItem {
+  productId: String!
+  product: Product
+  quantity: Int!
+  createdAt: String!
+  updatedAt: String!
+
+  """Price at the time of order creation"""
+  price: Float!
+}
+
+type Order {
+  userId: String!
+  orderId: String!
+  items: [OrderItem!]!
+  count: Int!
+  deliveryStatus: DeliveryStatus!
+  shippingAddress: Address!
+  paymentMethod: PaymentMethod!
+  contactDetails: DeliveryContactDetails!
+  checkoutDetails: CheckoutDetails!
+  createdAt: String!
+  updatedAt: String!
+  canCancel: Boolean!
+  review: OrderReview
+}
+
+"""The status of the order"""
+enum DeliveryStatus {
+  PENDING
+  DELIVERED
+  CANCELLED
+  REFUNDED
+  PROCESSING
+  SHIPPED
+}
+
+"""The status of the order"""
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+}
+
+type PaginatedOrder {
+  items: [Order!]!
+  pagination: Pagination!
+}
+
+type Cart {
+  userId: String!
+  items: [CartItem!]!
+  count: Int!
+  createdAt: String!
+  updatedAt: String!
+  checkoutDetails: CheckoutDetails!
+  ttl: CheckoutDetails!
+}
+
+type Category {
+  name: String!
+  icon: String!
+  imageUrl: String!
+  navigateUrl: String!
+  isAvailable: Boolean!
+}
+
+type Query {
+  products(
+    limit: Int! = 10
+    cursor: String
+    name: String
+
+    """Supported categories: chicken, beef, pork, mutton, fish, eggs"""
+    category: String
+    tags: [String!]
+    minPrice: Float
+    maxPrice: Float
+    minRating: Float
+    maxRating: Float
+    showOutOfStock: Boolean = false
+    sortBy: ProductsSortBy = NAME
+    sortAsc: Boolean = true
+  ): PaginatedProduct!
+  product(productId: String!): Product
+  reviews(
+    productId: String!
+    limit: Int! = 5
+    cursor: String
+    minRating: Float
+    maxRating: Float
+
+    """Sort by rating"""
+    sortAsc: Boolean = true
+  ): [ProductReview!]!
+  review(productId: String!): ProductReview
+  cart: Cart!
+  cartItem(productId: String!): CartItem!
+  orders(limit: Int! = 10, cursor: String): PaginatedOrder!
+  order(orderId: String!): Order!
+  me: User
+  addresses(limit: Int! = 4): [Address!]!
+  address(addressId: String!): Address!
+  categories: [Category!]!
+  category(name: String!): Category
+}
+
+"""Sort products by"""
+enum ProductsSortBy {
+  NAME
+  PRICE
+  RATING
+}
+
+type Mutation {
+  submitFeedback(productId: String!, feedback: FeedbackInput!): ProductReview!
+  addItemToCart(cartInput: CartInput!): Cart!
+  clearCart: Cart!
+  checkout(paymentMethod: PaymentMethod!): Order!
+  cancelOrder(orderId: String!): Order!
+  submitOrderFeedback(orderId: String!, feedback: FeedbackInput!): OrderReview!
+
+  """Admin User can change the delivery status of an order"""
+  changeOrderStatus(userId: String!, orderId: String!, status: DeliveryStatus!): Order!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  putAddress(putAddressInput: PutAddressInput!): Address!
+  deleteAddress(addressId: String!): Address!
+  setDefaultAddress(addressId: String!): Address!
+}
+
+input FeedbackInput {
+  rating: Float!
+  comment: String!
+}
+
+input CartInput {
+  quantity: Int!
+  productId: String!
+}
+
+input UpdateUserInput {
+  name: String!
+  imageUrl: String
+  email: String!
+  phone: String!
+}
+
+input PutAddressInput {
+  addressId: String
+  apt: String
+  street: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  additionalInfo: String
+}
+
+type Subscription {
+  cartCount: Int!
+}

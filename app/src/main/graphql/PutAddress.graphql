@@ -1,0 +1,25 @@
+mutation PutAddress(
+    $addressId: String
+    $apt: String
+    $city: String!
+    $street: String!
+    $zip: String!
+    $state: String!
+    $country: String!
+    $additionalInfo: String
+) {
+    putAddress(
+        putAddressInput: {
+            addressId: $addressId
+            apt: $apt
+            city: $city
+            street: $street
+            zip: $zip
+            state: $state
+            country: $country
+            additionalInfo: $additionalInfo
+        }
+    ) {
+        addressId
+    }
+}

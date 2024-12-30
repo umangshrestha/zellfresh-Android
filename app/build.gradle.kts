@@ -5,11 +5,19 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
-
+    alias(libs.plugins.apollo.graphql)
 }
 
 hilt {
     enableAggregatingTask = false
+}
+
+apollo {
+    service("service") {
+        packageName.set("com.zellfresh.client")
+        schemaFile.set(file("src/main/graphql/schema.graphqls"))
+        operationManifestFormat.set("persistedQueryManifest")
+    }
 }
 
 android {
@@ -89,6 +97,8 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.logging)
+    implementation(libs.apollo.runtime)
+    implementation(libs.apollo.normalized.cache)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)

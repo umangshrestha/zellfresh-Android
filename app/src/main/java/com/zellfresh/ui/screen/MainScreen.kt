@@ -51,10 +51,9 @@ fun MainScreen(
     val navController = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val accountDetails by authViewModel.accountDetails.collectAsState()
 
-    ZellfreshTheme(
-        isDarkTheme = isDarkTheme
-    ) {
+    ZellfreshTheme(isDarkTheme = isDarkTheme) {
         LaunchedEffect(Unit) {
             authViewModel.init()
         }
@@ -109,7 +108,7 @@ fun MainScreen(
             },
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            Text(text = authViewModel.accountDetails.value?.name ?: "Guest")
+            Text(text = authViewModel.accountDetails.value?.name ?: "Guest", modifier = Modifier.padding(innerPadding))
             NavHost(
                 navController = navController, startDestination = "home",
                 modifier = Modifier.padding(innerPadding)
@@ -146,7 +145,6 @@ fun MainScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
-
             }
         }
     }

@@ -1,0 +1,21 @@
+query ListCarts {
+    cart {
+        items {
+            quantity
+            productId
+            product {
+                name
+                description
+                unit
+                price
+                imageUrl
+                availableQuantity
+                limitPerTransaction
+            }
+        }
+        checkoutDetails {
+            subTotal
+            enableCheckout
+        }
+    }
+}

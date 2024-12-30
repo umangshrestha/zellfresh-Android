@@ -1,0 +1,17 @@
+mutation PutUser(
+  $name: String!
+  $email: String!
+  $phone: String!
+  $imageUrl: String
+) {
+  updateUser(
+    updateUserInput: {
+      email: $email
+      name: $name
+      phone: $phone
+      imageUrl: $imageUrl
+    }
+  ) {
+    userId
+  }
+}

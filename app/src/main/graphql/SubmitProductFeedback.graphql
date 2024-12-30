@@ -1,0 +1,5 @@
+mutation SubmitProductFeedback($productId: String!, $rating: Float!, $comment: String!) {
+    submitFeedback(productId: $productId, feedback: { rating: $rating, comment: $comment}) {
+        rating
+    }
+}

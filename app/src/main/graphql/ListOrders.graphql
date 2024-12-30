@@ -1,0 +1,54 @@
+query ListOrders($cursor: String) {
+    orders(cursor: $cursor) {
+        items {
+            orderId
+            userId
+            items {
+                productId
+                quantity
+                price
+                product {
+                    name
+                    description
+                    imageUrl
+                    price
+                    unit
+                }
+            }
+            deliveryStatus
+            shippingAddress {
+                apt
+                street
+                city
+                state
+                zip
+                country
+                additionalInfo
+            }
+            review {
+                rating
+                comment
+            }
+            paymentMethod
+            contactDetails {
+                name
+                phone
+                email
+            }
+            checkoutDetails {
+                totalPrice
+                subTotal
+                tax
+                discount
+                deliveryPrice
+                taxPercentage
+            }
+            createdAt
+            updatedAt
+            canCancel
+        }
+        pagination {
+            next
+        }
+    }
+}

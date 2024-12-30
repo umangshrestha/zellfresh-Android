@@ -1,0 +1,5 @@
+mutation ChangeOrderStatus($userId: String!, $orderId: String!, $status: DeliveryStatus!) {
+    changeOrderStatus(userId: $userId, orderId: $orderId, status: $status) {
+        deliveryStatus
+    }
+}
