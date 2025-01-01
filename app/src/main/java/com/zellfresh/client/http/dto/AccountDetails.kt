@@ -1,4 +1,4 @@
-package com.zellfresh.client.auth.dto
+package com.zellfresh.client.http.dto
 
 import kotlinx.serialization.Serializable
 

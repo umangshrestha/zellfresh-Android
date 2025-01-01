@@ -27,7 +27,8 @@ fun ThemeToggle(
         Icon(
             imageVector = if (isDarkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
             contentDescription = if (isDarkTheme) "Light Mode" else "Dark Mode",
-            tint = Color.White
+            tint = Color.White,
+            modifier = modifier
         )
     }
 }

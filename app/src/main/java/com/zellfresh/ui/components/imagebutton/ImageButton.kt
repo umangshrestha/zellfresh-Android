@@ -1,4 +1,4 @@
-package com.zellfresh.ui.components
+package com.zellfresh.ui.components.imagebutton
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

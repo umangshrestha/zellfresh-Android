@@ -17,14 +17,14 @@ import androidx.navigation.NavHostController
 fun OrdersScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             text = "Products Page",
             modifier = modifier
         )
-        IconButton(onClick = { navController.navigate("home") }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon")
+        IconButton(onClick = { navController.navigate("home") }, modifier = modifier) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon", modifier = modifier)
         }
     }
 

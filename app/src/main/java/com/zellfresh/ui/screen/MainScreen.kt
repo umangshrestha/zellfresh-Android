@@ -1,27 +1,24 @@
 package com.zellfresh.ui.screen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,11 +29,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zellfresh.R
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.zellfresh.client.auth.AuthViewModel
+import com.zellfresh.client.http.HttpViewModel
+import com.zellfresh.ui.components.categories.CategoriesList
+import com.zellfresh.ui.components.categories.CategoriesViewModel
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.ObserveAsEvents
 import kotlinx.coroutines.launch
@@ -44,20 +45,18 @@ import kotlinx.coroutines.launch
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun MainScreen(
-    viewModel: ThemeViewModel = viewModel(),
-    authViewModel: AuthViewModel = viewModel()
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel = viewModel(),
+    httpViewModel: HttpViewModel = viewModel(),
+    categoriesViewModel: CategoriesViewModel = viewModel()
 ) {
     val appName = stringResource(id = R.string.app_name)
-    val isDarkTheme by viewModel.isDarkTheme.collectAsState()
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
     val navController = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val accountDetails by authViewModel.accountDetails.collectAsState()
-
+    val accountDetails by httpViewModel.accountDetails.collectAsState()
     ZellfreshTheme(isDarkTheme = isDarkTheme) {
-        LaunchedEffect(Unit) {
-            authViewModel.init()
-        }
         ObserveAsEvents(flow = NotificationController.notifications) {
             scope.launch {
                 snackBarHostState.currentSnackbarData?.dismiss()
@@ -84,20 +83,12 @@ fun MainScreen(
                             }
                         ))
                     },
-                    navigationIcon = {
-                        if (navController.previousBackStackEntry != null) {
-                            IconButton(onClick = {
-                                navController.navigateUp()
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "backIcon")
-                            }
-                        }
-                    },
                     actions = {
                         ThemeToggle(
                             isDarkTheme = isDarkTheme,
                             onClick = {
-                                viewModel.setTheme(!isDarkTheme)
+                                themeViewModel.setTheme(!isDarkTheme)
+                                themeViewModel.setTheme(!isDarkTheme)
                             }
                         )
                     },
@@ -107,27 +98,37 @@ fun MainScreen(
                     ),
                 )
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize(),
         ) { innerPadding ->
-            Text(
-                text = authViewModel.accountDetails.value?.name ?: "Guest",
-                modifier = Modifier.padding(innerPadding)
-            )
             NavHost(
                 navController = navController, startDestination = "home",
-                modifier = Modifier.padding(innerPadding)
+                modifier = modifier.padding(innerPadding)
             ) {
                 composable(route = "login") {
                     LoginScreen(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = modifier
                     )
                 }
                 composable(route = "home") {
-                    HomeScreen(
-                        onNavigate = { navController.navigate(it) },
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    val categoriesList by categoriesViewModel.categoriesState.collectAsState()
+                    LaunchedEffect(Unit) {
+                        categoriesViewModel.getCategories()
+                    }
+                    Column(modifier = modifier.fillMaxSize()) {
+                        Text(
+                            text = "Categories",
+                            modifier = modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            style = typography.headlineMedium,
+                        )
+                        CategoriesList(
+                            categoriesList,
+                            onNavigate = { navController.navigate(it) },
+                            modifier = modifier
+                        )
+                    }
                 }
                 composable(
                     route = "/products?category={category}",
@@ -137,29 +138,25 @@ fun MainScreen(
                 ) { backStackEntry ->
                     ProductsScreen(
                         category = backStackEntry.arguments?.getString("Category"),
-                        modifier = Modifier.padding(innerPadding)
+                        onAddItemToCart = {
+
+                        },
+                        modifier = modifier
                     )
                 }
                 composable(route = "cart") {
                     CartScreen(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = modifier
                     )
                 }
                 composable(route = "orders") {
                     OrdersScreen(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = modifier
                     )
                 }
             }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MainPreview() {
-    MainScreen()
 }

@@ -1,4 +1,4 @@
-package com.zellfresh.ui.store
+package com.zellfresh.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -17,7 +17,7 @@ private val Context.dataStore by preferencesDataStore(name = PREFERENCES_NAME)
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppDataStoreModule {
+object DataStoreModule {
 
     @Provides
     @Singleton

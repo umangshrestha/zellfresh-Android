@@ -1,42 +1,43 @@
-package com.zellfresh.client.auth
+package com.zellfresh.client.http
 
+import android.util.Log
+import com.zellfresh.client.http.dto.LoginState
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import com.zellfresh.client.auth.dto.AccountDetails
-import com.zellfresh.client.auth.dto.LoginState
-import com.zellfresh.ui.store.DataStoreRepository
 import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.request.header
+import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
-import android.util.Log
 import javax.inject.Singleton
 
-private const val TAG = "AuthRepository"
-private val JsonWithUnknown = Json { ignoreUnknownKeys = true }
+private const val TAG = "LoginRepository"
 
 @Singleton
-class AuthRepository @Inject constructor(
-    private val dataStoreRepository: DataStoreRepository
+class LoginRepository @Inject constructor(
+    private val tokenRepository: TokenRepository
 ) {
-    private val loginState = dataStoreRepository.loginState
+    private val loginState: Flow<LoginState> = tokenRepository.loginState
 
     suspend fun guestLogin(
-        client: HttpClient
+        client: HttpClient,
+        force: Boolean = false
     ): BearerTokens? {
+        if (!force && loginState.firstOrNull() !is LoginState.None) {
+            return tokenRepository.loadTokens()
+        }
         try {
             val response = client.post("api/auth/guest/login")
             if (response.status.isSuccess()) {
-                val value = JsonWithUnknown.decodeFromString<LoginState.GuestToken>(response.bodyAsText())
-                dataStoreRepository.saveLoginState(value)
+                val value =
+                    Json.decodeFromString<LoginState.GuestToken>(response.bodyAsText())
+                tokenRepository.saveLoginState(value)
                 return BearerTokens(value.guestToken, "")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "guestLogin: $e")
             return null
         }
         return null
@@ -52,8 +53,9 @@ class AuthRepository @Inject constructor(
         try {
             val response = client.post("api/auth/refresh")
             if (response.status.isSuccess()) {
-                val value = JsonWithUnknown.decodeFromString<LoginState.AuthToken>(response.bodyAsText())
-                dataStoreRepository.saveLoginState(value)
+                val value =
+                    Json.decodeFromString<LoginState.AuthToken>(response.bodyAsText())
+                tokenRepository.saveLoginState(value)
                 return BearerTokens(value.accessToken, value.refreshToken)
             }
         } catch (e: Exception) {
@@ -75,8 +77,9 @@ class AuthRepository @Inject constructor(
                 }
             }
             if (response.status.isSuccess()) {
-                val value = JsonWithUnknown.decodeFromString<LoginState.AuthToken>(response.bodyAsText())
-                dataStoreRepository.saveLoginState(value)
+                val value =
+                    Json.decodeFromString<LoginState.AuthToken>(response.bodyAsText())
+                tokenRepository.saveLoginState(value)
                 return BearerTokens(value.accessToken, value.refreshToken)
             }
         } catch (e: Exception) {
@@ -84,25 +87,4 @@ class AuthRepository @Inject constructor(
         }
         return null
     }
-
-    suspend fun getUserDetails(
-        client: HttpClient
-    ): Result<AccountDetails> {
-        try {
-            val response = client.get("api/auth/me")
-            return if (response.status.isSuccess()) {
-                val value = JsonWithUnknown.decodeFromString<AccountDetails>(response.bodyAsText(),)
-                Result.success(value)
-            } else {
-                Result.failure(Exception("Failed to get user details"))
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "getUserDetails: $e")
-            return Result.failure(e)
-        }
-    }
 }
-
-
-
-

@@ -2,7 +2,6 @@ package com.zellfresh.ui.theme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zellfresh.ui.store.DataStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -12,10 +11,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThemeViewModel @Inject constructor(
-    private val dataStoreRepository: DataStoreRepository
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
 
-    val isDarkTheme = dataStoreRepository.isDarkTheme.stateIn(
+    val isDarkTheme = themeRepository.isDarkTheme.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = false
@@ -23,7 +22,7 @@ class ThemeViewModel @Inject constructor(
 
     fun setTheme(value: Boolean) {
         viewModelScope.launch {
-            dataStoreRepository.setTheme(value)
+            themeRepository.setTheme(value)
         }
     }
 }
