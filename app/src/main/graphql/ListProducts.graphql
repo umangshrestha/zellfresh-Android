@@ -35,7 +35,6 @@ query ListProducts(
             price
             unit
             availableQuantity
-            category
             rating {
                 rating
                 count

@@ -40,6 +40,8 @@ import com.zellfresh.ui.components.categories.CategoriesList
 import com.zellfresh.ui.components.categories.CategoriesViewModel
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.ObserveAsEvents
+import com.zellfresh.ui.components.products.ProductsList
+import com.zellfresh.ui.components.products.ProductsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,7 +50,8 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     themeViewModel: ThemeViewModel = viewModel(),
     httpViewModel: HttpViewModel = viewModel(),
-    categoriesViewModel: CategoriesViewModel = viewModel()
+    categoriesViewModel: CategoriesViewModel = viewModel(),
+    productsViewModel: ProductsViewModel = viewModel(),
 ) {
     val appName = stringResource(id = R.string.app_name)
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
@@ -112,9 +115,6 @@ fun MainScreen(
                 }
                 composable(route = "home") {
                     val categoriesList by categoriesViewModel.categoriesState.collectAsState()
-                    LaunchedEffect(Unit) {
-                        categoriesViewModel.getCategories()
-                    }
                     Column(modifier = modifier.fillMaxSize()) {
                         Text(
                             text = "Categories",
@@ -136,8 +136,17 @@ fun MainScreen(
                         type = NavType.StringType
                     })
                 ) { backStackEntry ->
-                    ProductsScreen(
-                        category = backStackEntry.arguments?.getString("Category"),
+                    val productsList by productsViewModel.productsState.collectAsState()
+                    LaunchedEffect(Unit) {
+                        val category = backStackEntry.arguments?.getString("category")
+                        productsViewModel.getProducts(category, reset = true)
+                    }
+                    ProductsList(
+                        productsList,
+                        fetchMore = {
+                            val category = backStackEntry.arguments?.getString("category")
+                            productsViewModel.getProducts(category)
+                        },
                         onAddItemToCart = {
 
                         },

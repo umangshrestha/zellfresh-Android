@@ -27,6 +27,7 @@ fun ImageButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     contentDescription: String? = null,
 ) {
 
@@ -35,6 +36,7 @@ fun ImageButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
         ),
+        enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
     ) {

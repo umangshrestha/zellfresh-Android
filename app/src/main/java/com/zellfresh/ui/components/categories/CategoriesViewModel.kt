@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo.ApolloClient
 import com.zellfresh.client.ListCategoriesQuery
+import com.zellfresh.client.ListCategoriesQuery.Category
 import com.zellfresh.client.apollo.dto.Result
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.NotificationEvent
@@ -16,24 +17,25 @@ import javax.inject.Inject
 class CategoriesViewModel @Inject constructor(
     private val apolloClient: ApolloClient
 ) : ViewModel() {
-    private val _categoriesState = MutableStateFlow<Result<Categories>>(Result.Loading())
+    private val _categoriesState = MutableStateFlow<Result<List<Category>>>(Result.Loading())
     val categoriesState = _categoriesState
 
-    fun getCategories() {
+    init {
         viewModelScope.launch {
-            try {
-                if (_categoriesState.value is Result.Success) {
-                    return@launch
-                }
-                val response = apolloClient.query(ListCategoriesQuery()).execute()
-                if (response.hasErrors()) {
-                    _categoriesState.value = Result.Failure(Exception("Failed to get categories"))
-                }
-                _categoriesState.value = Result.Success(response.data?.categories ?: emptyList())
-            } catch (e: Exception) {
-                _categoriesState.value = Result.Failure(e)
-                NotificationController.notify(NotificationEvent("Failed to get categories"))
+            getCategories()
+        }
+    }
+
+    private suspend fun getCategories() {
+        try {
+            val response = apolloClient.query(ListCategoriesQuery()).execute()
+            if (response.hasErrors()) {
+                _categoriesState.value = Result.Failure(Exception("Failed to get categories"))
             }
+            _categoriesState.value = Result.Success(response.data?.categories ?: emptyList())
+        } catch (e: Exception) {
+            _categoriesState.value = Result.Failure(e)
+            NotificationController.notify(NotificationEvent("Failed to get categories"))
         }
     }
 }

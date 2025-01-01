@@ -1,4 +1,4 @@
-package com.zellfresh.ui.components
+package com.zellfresh.ui.components.products
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -25,10 +25,11 @@ fun ProductItem(
     name: String,
     unit: String,
     description: String?,
-    modifier: Modifier = Modifier,
+    badgeText : String?,
     price: Double,
     imageUrl: String,
     availableQuantity: Int,
+    modifier: Modifier = Modifier,
     rating: Rating = Rating(
         rating = 0.0, count = 0
     ),
@@ -36,10 +37,10 @@ fun ProductItem(
     productId: String
 ) {
     val isProductAvailable = availableQuantity > 0
-    val badgeText = when {
+    val newBadgeText = when {
         availableQuantity <= 0 -> "Out of Stock"
         availableQuantity < 10 -> "Limited Stock"
-        else -> null
+        else -> badgeText
     }
 
     Card(
@@ -52,9 +53,9 @@ fun ProductItem(
         Column(
             modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (badgeText != null) {
+            if (newBadgeText != null) {
                 Text(
-                    text = badgeText,
+                    text = newBadgeText,
                     color = Color.Red,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -144,7 +145,8 @@ fun ProductItemPreview() {
         availableQuantity = 10,
         rating = Rating(4.5, 100),
         onAddItemToCart = {},
-        productId = "123"
+        productId = "123",
+        badgeText = "Brand"
     )
 }
 
