@@ -1,13 +1,17 @@
 package com.zellfresh.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
@@ -32,10 +36,14 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.zellfresh.client.http.HttpViewModel
+import com.zellfresh.ui.components.cart.CartIcon
 import com.zellfresh.ui.components.categories.CategoriesList
 import com.zellfresh.ui.components.categories.CategoriesViewModel
 import com.zellfresh.ui.components.notification.NotificationController
@@ -80,11 +88,15 @@ fun MainScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(text = appName, color = Color.White, modifier = Modifier.clickable(
-                            onClick = {
-                                navController.navigate("home")
-                            }
-                        ))
+                        Text(
+                            text = appName,
+                            color = Color.White,
+                            style = typography.headlineMedium,
+                            modifier = Modifier.clickable(
+                                onClick = {
+                                    navController.navigate("home")
+                                }
+                            ))
                     },
                     actions = {
                         ThemeToggle(
@@ -102,6 +114,43 @@ fun MainScreen(
                 )
             },
             modifier = modifier.fillMaxSize(),
+            bottomBar = {
+                NavigationBar(
+                    modifier = modifier
+                ) {
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "orders",
+                        onClick = { navController.navigate("orders") },
+                        icon = {
+                            Image(
+                                painter = painterResource(R.drawable.shoppingbag),
+                                contentDescription = "orders",
+                                modifier = modifier.size(32.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        },
+                    )
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "profile",
+                        onClick = { navController.navigate("profile") },
+                        icon = {
+                            Image(
+                                painter = painterResource(R.drawable.account),
+                                contentDescription = "profile",
+                                modifier = modifier.size(32.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        },
+                    )
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "cart",
+                        onClick = { navController.navigate("cart") },
+                        icon = {
+                            CartIcon(cartCount = 10, modifier = modifier.size(32.dp))
+                        },
+                    )
+                }
+            }
         ) { innerPadding ->
             NavHost(
                 navController = navController, startDestination = "home",
@@ -119,9 +168,10 @@ fun MainScreen(
                         Text(
                             text = "Categories",
                             modifier = modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
                             textAlign = TextAlign.Center,
-                            style = typography.headlineMedium,
+                            style = typography.headlineLarge,
                         )
                         CategoriesList(
                             categoriesList,
