@@ -1,6 +1,7 @@
 package com.zellfresh.ui.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -90,13 +91,13 @@ fun MainScreen(
                     title = {
                         Text(
                             text = appName,
-                            color = Color.White,
                             style = typography.headlineMedium,
                             modifier = Modifier.clickable(
                                 onClick = {
                                     navController.navigate("home")
                                 }
-                            ))
+                            )
+                        )
                     },
                     actions = {
                         ThemeToggle(
@@ -108,8 +109,9 @@ fun MainScreen(
                         )
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        containerColor =
+                        if (isDarkTheme) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.primary,
+                        titleContentColor = Color.White
                     ),
                 )
             },
