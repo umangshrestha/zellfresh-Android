@@ -14,13 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 
 @Composable
-fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+fun LoginScreen(onGoogleLogin: , modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            text = "Products Page",
+            text = "Login Page",
             modifier = modifier
         )
         IconButton(onClick = { navController.navigate("home") }) {
