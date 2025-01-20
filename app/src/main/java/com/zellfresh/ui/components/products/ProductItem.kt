@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.zellfresh.client.ListProductsQuery.Rating
+import com.zellfresh.client.ListProductsQuery
 
 
 @Composable
@@ -30,7 +30,7 @@ fun ProductItem(
     imageUrl: String,
     availableQuantity: Int,
     modifier: Modifier = Modifier,
-    rating: Rating = Rating(
+    rating: ListProductsQuery.Rating = ListProductsQuery.Rating(
         rating = 0.0, count = 0
     ),
     onAddItemToCart: (String) -> Unit,
@@ -143,7 +143,7 @@ fun ProductItemPreview() {
         price = 10.99,
         imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiXM1f7aFP4rKF-wJZ2juCb-7JcQCspEYUVwLK4JrpBdVtRB-ELAqpUCmkg6znfoG4fh8&usqp=CAU",
         availableQuantity = 10,
-        rating = Rating(4.5, 100),
+        rating = ListProductsQuery.Rating(4.5, 100),
         onAddItemToCart = {},
         productId = "123",
         badgeText = "Brand"

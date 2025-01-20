@@ -1,53 +1,75 @@
-package com.zellfresh.ui.components.products
+package com.zellfresh.ui.components.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.Optional
-import com.zellfresh.client.ListProductsQuery
-import com.zellfresh.client.ListProductsQuery.Item as Product
+import com.zellfresh.client.AddItemToCartMutation
+import com.zellfresh.client.CartCountSubscription
+import com.zellfresh.client.ListCartsQuery
 import com.zellfresh.client.apollo.dto.Result
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.NotificationEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
+
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductsViewModel @Inject constructor(
+class CartsViewModel @Inject constructor(
     private val apolloClient: ApolloClient
 ) : ViewModel() {
 
-    private val _productsState = MutableStateFlow<Result<List<Product>>>(Result.Loading())
-    val productsState = _productsState
-    private var cursor: String? = null
+    private val _carts = MutableStateFlow<Result<List<ListCartsQuery.Item>>>(Result.Loading())
+    val carts = _carts
 
-    suspend fun getProducts(category: String? = null, reset: Boolean = false) {
-        if (reset) {
-            cursor = null
-            _productsState.value = Result.Loading()
+    private val _cartCount = MutableStateFlow(0)
+    val cartCount: StateFlow<Int> = _cartCount
+
+    suspend fun getCarts() {
+        val response = apolloClient.query(
+            ListCartsQuery()
+        ).execute()
+        if (response.hasErrors()) {
+            _carts.value = Result.Failure(Exception("Failed to get categories"))
         }
+        val newProducts = response.data?.cart?.items ?: emptyList()
+        val currentProducts = (_carts.value as? Result.Success)?.data.orEmpty()
+        _carts.value = Result.Success(newProducts + currentProducts)
+    }
 
+    suspend fun getCartCount() {
+        apolloClient.subscription(
+            CartCountSubscription()
+        ).toFlow().collect {
+            _cartCount.value = it.data?.cartCount ?: 0
+        }
+    }
+
+
+    fun addItemToCart(productId: String, quantity: Int) {
         viewModelScope.launch {
-            try {
-                val response = apolloClient.query(
-                    ListProductsQuery(
-                        category = Optional.presentIfNotNull(category),
-                        cursor = Optional.presentIfNotNull(cursor),
+            val response = apolloClient.mutation(
+                AddItemToCartMutation(
+                    productId = productId,
+                    quantity = quantity
+                )
+            ).execute()
+            if (response.hasErrors()) {
+                NotificationController.notify(
+                    NotificationEvent(
+                        message = response.toString()
                     )
-                ).execute()
-                if (response.hasErrors()) {
-                    _productsState.value = Result.Failure(Exception("Failed to get categories"))
-                }
-                cursor = response.data?.products?.pagination?.next
-                val newProducts = response.data?.products?.items ?: emptyList()
-                val currentProducts = (_productsState.value as? Result.Success)?.data.orEmpty()
-                _productsState.value = Result.Success(newProducts + currentProducts)
-            } catch (e: Exception) {
-                _productsState.value = Result.Failure(e)
-                NotificationController.notify(NotificationEvent("Failed to get categories"))
+                )
+            } else {
+                NotificationController.notify(
+                    NotificationEvent(
+                        message = "Item updated in Cart"
+                    )
+                )
             }
+
         }
     }
 }

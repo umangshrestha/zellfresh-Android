@@ -13,15 +13,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.zellfresh.ui.components.dto.OrderProduct
 
 @Composable
 fun OrderItem(
     price: Double,
     quantity: Int,
-    product: OrderProduct = OrderProduct.default
+    name: String,
+    unit: String,
+    imageUrl: String,
+    description: String
 ) {
-    val (name, unit, imageUrl, description) = product
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,12 +76,10 @@ fun OrderItem(
 @Composable
 fun OrderItemPreview() {
     OrderItem(
-        product = OrderProduct(
-            name = "Product Name",
-            unit = "Unit",
-            description = "Product Description",
-            imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiXM1f7aFP4rKF-wJZ2juCb-7JcQCspEYUVwLK4JrpBdVtRB-ELAqpUCmkg6znfoG4fh8&usqp=CAU",
-        ),
+        name = "Product Name",
+        unit = "Unit",
+        description = "Product Description",
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiXM1f7aFP4rKF-wJZ2juCb-7JcQCspEYUVwLK4JrpBdVtRB-ELAqpUCmkg6znfoG4fh8&usqp=CAU",
         price = 10.99,
         quantity = 2
     )

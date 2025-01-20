@@ -6,8 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.zellfresh.client.NetworkUtils
-
 import com.zellfresh.ui.screen.MainScreen
+
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -36,5 +36,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-

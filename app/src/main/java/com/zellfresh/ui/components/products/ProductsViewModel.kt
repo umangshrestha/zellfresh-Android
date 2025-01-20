@@ -7,8 +7,6 @@ import com.apollographql.apollo.api.Optional
 import com.zellfresh.client.ListProductsQuery
 import com.zellfresh.client.ListProductsQuery.Item as Product
 import com.zellfresh.client.apollo.dto.Result
-import com.zellfresh.ui.components.notification.NotificationController
-import com.zellfresh.ui.components.notification.NotificationEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,26 +26,20 @@ class ProductsViewModel @Inject constructor(
             cursor = null
             _productsState.value = Result.Loading()
         }
-
         viewModelScope.launch {
-            try {
-                val response = apolloClient.query(
-                    ListProductsQuery(
-                        category = Optional.presentIfNotNull(category),
-                        cursor = Optional.presentIfNotNull(cursor),
-                    )
-                ).execute()
-                if (response.hasErrors()) {
-                    _productsState.value = Result.Failure(Exception("Failed to get categories"))
-                }
-                cursor = response.data?.products?.pagination?.next
-                val newProducts = response.data?.products?.items ?: emptyList()
-                val currentProducts = (_productsState.value as? Result.Success)?.data.orEmpty()
-                _productsState.value = Result.Success(newProducts + currentProducts)
-            } catch (e: Exception) {
-                _productsState.value = Result.Failure(e)
-                NotificationController.notify(NotificationEvent("Failed to get categories"))
+            val response = apolloClient.query(
+                ListProductsQuery(
+                    category = Optional.presentIfNotNull(category),
+                    cursor = Optional.presentIfNotNull(cursor),
+                )
+            ).execute()
+            if (response.hasErrors()) {
+                _productsState.value = Result.Failure(Exception("Failed to get categories"))
             }
+            cursor = response.data?.products?.pagination?.next
+            val newProducts = response.data?.products?.items ?: emptyList()
+            val currentProducts = (_productsState.value as? Result.Success)?.data.orEmpty()
+            _productsState.value = Result.Success(newProducts + currentProducts)
         }
     }
 }

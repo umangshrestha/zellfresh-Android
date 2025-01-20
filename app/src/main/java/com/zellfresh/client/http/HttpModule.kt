@@ -19,6 +19,7 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import kotlinx.coroutines.flow.firstOrNull
 
 
 @Module
@@ -27,45 +28,50 @@ object HttpModule {
     @Provides
     @Singleton
     fun provideHttpClient(
-        tokenRepository: TokenRepository,
-        loginRepository: LoginRepository
-    ): HttpClient = HttpClient(OkHttp) {
-        defaultRequest {
-            url(Config.BASE_URL)
-            header("Accept", "application/json")
-        }
-        install(Auth) {
-            bearer {
-                loadTokens {
-                    tokenRepository.loadTokens()
+        tokenRepository: TokenRepository, loginRepository: LoginRepository
+    ): HttpClient {
+        return HttpClient(OkHttp) {
+            defaultRequest {
+                url(Config.BASE_URL)
+                header("Accept", "application/json")
+            }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        tokenRepository.loginState.firstOrNull()?.loadTokens()
+                    }
+                    refreshTokens {
+                        val isTokenRefreshed =
+                            loginRepository.refreshToken() || loginRepository.guestLogin()
+                        return@refreshTokens if (isTokenRefreshed) tokenRepository.loginState.firstOrNull()
+                            ?.loadTokens()
+                        else null
+
+                    }
                 }
-                refreshTokens {
-                    loginRepository.refreshToken(client)
-                        ?: loginRepository.guestLogin(client)
+            }
+            engine {
+                config {
+                    followRedirects(true)
+                    connectTimeout(10, TimeUnit.SECONDS)
+                    readTimeout(10, TimeUnit.SECONDS)
+                    retryOnConnectionFailure(true)
                 }
             }
-        }
-        engine {
-            config {
-                followRedirects(true)
-                connectTimeout(10, TimeUnit.SECONDS)
-                readTimeout(10, TimeUnit.SECONDS)
-                retryOnConnectionFailure(true)
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = Logger.DEFAULT
             }
-        }
-        install(Logging) {
-            level = LogLevel.ALL
-            logger = Logger.DEFAULT
-        }
-        install(HttpRequestRetry) {
-            retryOnServerErrors(3)
-            exponentialDelay()
-            maxRetries = 3
-            delayMillis { retry ->
-                retry * 3000L
-            }
-            retryIf { _, response ->
-                !response.status.isSuccess()
+            install(HttpRequestRetry) {
+                retryOnServerErrors(3)
+                exponentialDelay()
+                maxRetries = 3
+                delayMillis { retry ->
+                    retry * 3000L
+                }
+                retryIf { _, response ->
+                    !response.status.isSuccess()
+                }
             }
         }
     }
