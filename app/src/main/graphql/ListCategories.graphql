@@ -2,6 +2,5 @@ query ListCategories {
     categories {
         name
         imageUrl
-        navigateUrl
     }
 }

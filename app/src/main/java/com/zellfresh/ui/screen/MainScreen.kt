@@ -40,7 +40,6 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.zellfresh.client.google.GoogleLoginButton
 import com.zellfresh.client.http.AccountViewModel
-import com.zellfresh.client.http.TokenRepository
 import com.zellfresh.ui.components.cart.CartIcon
 import com.zellfresh.ui.components.cart.CartScreen
 import com.zellfresh.ui.components.cart.CartsViewModel
@@ -91,7 +90,6 @@ fun MainScreen(
         ) {
             scope.launch {
                 cartsViewModel.getCarts()
-                cartsViewModel.getCartCount()
             }
         }
 
@@ -145,8 +143,7 @@ fun MainScreen(
                     onClick = { navController.navigate("cart") },
                     icon = {
                         CartIcon(
-                            cartCount = cartCount.value,
-                            modifier = modifier.size(32.dp)
+                            cartCount = cartCount.value, modifier = modifier.size(32.dp)
                         )
                     },
                 )
@@ -159,26 +156,24 @@ fun MainScreen(
             ) {
                 composable(route = "login") {
                     Text("Login to google")
-                    GoogleLoginButton(
-                        onSuccess = {
-                            val credential = it.credential
-                            Log.d("GoogleLogin", credential.toString())
-                        },
-                        onFailure = {
-                            Log.e("GoogleLogin", it.type)
-                            Log.e("GoogleLogin", it.errorMessage.toString())
-                        })
+                    GoogleLoginButton(onSuccess = {
+                        val credential = it.credential
+                        Log.d("GoogleLogin", credential.toString())
+                    }, onFailure = {
+                        Log.e("GoogleLogin", it.type)
+                        Log.e("GoogleLogin", it.errorMessage.toString())
+                    })
                 }
                 composable(route = "home") {
                     val categoriesList by categoriesViewModel.categoriesState.collectAsState()
                     CategoriesScreen(
                         categoriesList = categoriesList,
-                        onNavigate = { navController.navigate(it) },
+                        onNavigate = { category: String -> navController.navigate("products?category=${category}") },
                         modifier = modifier
                     )
                 }
                 composable(
-                    route = "/products?category={category}",
+                    route = "products?category={category}",
                     arguments = listOf(navArgument("category") {
                         type = NavType.StringType
                     })
@@ -188,16 +183,12 @@ fun MainScreen(
                         val category = backStackEntry.arguments?.getString("category")
                         productsViewModel.getProducts(category, reset = true)
                     }
-                    ProductsScreen(
-                        productsList = productsList,
-                        fetchMore = {
-                            val category = backStackEntry.arguments?.getString("category")
-                            productsViewModel.getProducts(category)
-                        },
-                        onAddItemToCart = {
-                            cartsViewModel.addItemToCart(it, 1)
-                        },
-                        modifier = modifier
+                    ProductsScreen(productsList = productsList, fetchMore = {
+                        val category = backStackEntry.arguments?.getString("category")
+                        productsViewModel.getProducts(category)
+                    }, onAddItemToCart = {
+                        cartsViewModel.addItemToCart(it, 1)
+                    }, modifier = modifier
                     )
                 }
                 composable(route = "profile") {
@@ -206,11 +197,16 @@ fun MainScreen(
                     )
                 }
                 composable(route = "cart") {
+                    val checkoutDetails by cartsViewModel.checkoutDetails.collectAsState()
                     CartScreen(
                         cartList = cartList,
-                        onCheckout = { navController.navigate("/checkout") },
+                        checkoutDetails = checkoutDetails,
+                        onCheckout = { navController.navigate("checkout") },
                         onAddItemToCart = { productId: String, quantity: Int ->
                             cartsViewModel.addItemToCart(productId, quantity)
+                        },
+                        onClearCart = {
+                            cartsViewModel.clearCart()
                         },
                         modifier = modifier
                     )

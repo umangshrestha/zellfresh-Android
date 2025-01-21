@@ -71,7 +71,7 @@ fun CategoriesScreen(
                             contentDescription = category.name,
                             text = category.name,
                             onClick = {
-                                onNavigate(category.navigateUrl)
+                                onNavigate(category.name)
                             })
                     }
                 }

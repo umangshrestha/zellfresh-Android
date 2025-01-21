@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo.ApolloClient
 import com.zellfresh.client.AddItemToCartMutation
-import com.zellfresh.client.CartCountSubscription
+import com.zellfresh.client.ClearCartMutation
 import com.zellfresh.client.ListCartsQuery
 import com.zellfresh.client.apollo.dto.Result
 import com.zellfresh.ui.components.notification.NotificationController
@@ -12,7 +12,6 @@ import com.zellfresh.ui.components.notification.NotificationEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 
 import javax.inject.Inject
 
@@ -25,7 +24,16 @@ class CartsViewModel @Inject constructor(
     val carts = _carts
 
     private val _cartCount = MutableStateFlow(0)
-    val cartCount: StateFlow<Int> = _cartCount
+    val cartCount = _cartCount
+
+    private val _checkoutDetails = MutableStateFlow(
+        ListCartsQuery.CheckoutDetails(
+            0.0,
+            false
+        )
+    )
+
+    val checkoutDetails = _checkoutDetails
 
     suspend fun getCarts() {
         val response = apolloClient.query(
@@ -33,20 +41,17 @@ class CartsViewModel @Inject constructor(
         ).execute()
         if (response.hasErrors()) {
             _carts.value = Result.Failure(Exception("Failed to get categories"))
-        }
-        val newProducts = response.data?.cart?.items ?: emptyList()
-        val currentProducts = (_carts.value as? Result.Success)?.data.orEmpty()
-        _carts.value = Result.Success(newProducts + currentProducts)
-    }
-
-    suspend fun getCartCount() {
-        apolloClient.subscription(
-            CartCountSubscription()
-        ).toFlow().collect {
-            _cartCount.value = it.data?.cartCount ?: 0
+        } else {
+            val newProducts = response.data?.cart?.items ?: emptyList()
+            _cartCount.value = response.data?.cart?.count ?: 0
+            _checkoutDetails.value =
+                response.data?.cart?.checkoutDetails ?: ListCartsQuery.CheckoutDetails(
+                    0.0,
+                    false
+                )
+            _carts.value = Result.Success(newProducts)
         }
     }
-
 
     fun addItemToCart(productId: String, quantity: Int) {
         viewModelScope.launch {
@@ -63,13 +68,38 @@ class CartsViewModel @Inject constructor(
                     )
                 )
             } else {
+                _cartCount.value = response.data?.addItemToCart?.count ?: 0
                 NotificationController.notify(
                     NotificationEvent(
                         message = "Item updated in Cart"
                     )
                 )
             }
+            getCarts()
+        }
+    }
 
+
+    fun clearCart() {
+        viewModelScope.launch {
+            val response = apolloClient.mutation(
+                ClearCartMutation()
+            ).execute()
+            if (response.hasErrors()) {
+                NotificationController.notify(
+                    NotificationEvent(
+                        message = response.toString()
+                    )
+                )
+            } else {
+                _cartCount.value = response.data?.clearCart?.count ?: 0
+                NotificationController.notify(
+                    NotificationEvent(
+                        message = "Item updated in Cart"
+                    )
+                )
+            }
+            getCarts()
         }
     }
 }
