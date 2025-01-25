@@ -9,27 +9,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AddressForm(
-    aptInput: String,
-    streetInput: String,
-    zipInput: String,
-    additionalInfoInput: String,
-    onUpdate: (String?, String, String,String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var apt by remember { mutableStateOf(aptInput) }
-    var street by remember { mutableStateOf(streetInput) }
-    var zip by remember { mutableStateOf(zipInput) }
-    var additionalInfo by remember { mutableStateOf(additionalInfoInput) }
-
+    modifier: Modifier = Modifier,
+    profileViewModel: ProfileViewModel = viewModel(),
+    ) {
+    val isStreetValid = profileViewModel.street.isNotBlank()
+    val isZipValid = profileViewModel.zip.all { it.isDigit() } && profileViewModel.zip.length == 6
+    val isFormValid = isStreetValid && isZipValid
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -37,49 +29,69 @@ fun AddressForm(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = "Address Form",
+            text = "Please fill out delivery details",
             style = MaterialTheme.typography.headlineLarge,
-            modifier = modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
-            value = apt,
-            onValueChange = { apt = it },
-            label = { Text("Apartment Number") },
-            modifier = modifier.fillMaxWidth()
+            value = profileViewModel.apt,
+            onValueChange = { profileViewModel.apt = it },
+            label = { Text("Apartment Number (Optional)") },
+            modifier = Modifier.fillMaxWidth()
         )
+
         OutlinedTextField(
-            value = street,
-            onValueChange = {
-                street = it
-            },
-            isError = street.isBlank(),
+            value = profileViewModel.street,
+            onValueChange = { profileViewModel.street = it },
+            isError = !isStreetValid,
             label = { Text("Street") },
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         )
+        if (!isStreetValid) {
+            Text(
+                text = "Street cannot be empty",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        // ZIP Code field with validation
+        OutlinedTextField(
+            value = profileViewModel.zip,
+            onValueChange = { profileViewModel.zip = it },
+            isError = !isZipValid,
+            label = { Text("ZIP Code") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (!isZipValid) {
+            Text(
+                text = "ZIP Code must be 5 digits",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         OutlinedTextField(
-            value = zip,
-            onValueChange = {
-                zip = it
-            },
-            isError = zip.isBlank(),
-            label = { Text("ZIP Code") },
-            modifier = modifier.fillMaxWidth()
+            value = profileViewModel.additionalInfo,
+            onValueChange = { profileViewModel.additionalInfo = it },
+            label = { Text("Additional Info (Optional)") },
+            modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(value = additionalInfo, onValueChange = {
-            additionalInfo = it
-        }, label = { Text("Additional Info") }, modifier = modifier.fillMaxWidth())
-
+        // Update button
         Button(
-            modifier = modifier.fillMaxWidth(),
-            enabled = zip.isNotBlank() && street.isNotBlank(),
-            onClick = {
-                onUpdate(apt, street, zip, additionalInfoInput)
-            }
+            onClick = {profileViewModel.putAddress()},
+            enabled = isFormValid,
+            modifier = Modifier.fillMaxWidth()
         ) {
-           Text("Update", modifier = modifier)
+            Text("Update")
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddressDetailsFormPreview() {
+    AddressForm()
 }

@@ -3,19 +3,24 @@ package com.zellfresh.ui.components.cart
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.zellfresh.client.ListCartsQuery
@@ -33,7 +38,9 @@ fun CartScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = 12.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
     ) {
         Text(
             text = "Categories",
@@ -75,6 +82,14 @@ fun CartScreen(
                             }
                         }
                     }
+
+                    item {
+                        if (cartList.data.isEmpty()) {
+                            Text(
+                                text="Your cart is empty"
+                            )
+                        }
+                    }
                     items(cartList.data) { cart ->
                         CartItem(
                             quantity = cart.quantity,
@@ -91,24 +106,81 @@ fun CartScreen(
                     }
                     item {
                         Row(
-                            modifier = modifier.fillMaxWidth().padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceAround
+                            modifier = Modifier.fillParentMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Subtotal: Rs.${checkoutDetails.subTotal}",
-                                modifier = modifier
+                                "Subtotal:",
+                                fontWeight = FontWeight.Bold,
+                                modifier = modifier.weight(1f)
                             )
-                            FilledTonalButton(
-                                onClick = onCheckout,
-                                modifier = modifier,
-                                enabled = checkoutDetails.enableCheckout
-                            ) {
-                                Text("Checkout", modifier = modifier)
-                            }
+                            Text(
+                                "Rs.${checkoutDetails.subTotal}",
+                                modifier = modifier.weight(1f),
+                                textAlign = TextAlign.End
+                            )
+                        }
+                        Spacer(modifier = modifier.height(8.dp))
+
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Delivery Charge:",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                "Rs. ${checkoutDetails.deliveryPrice}",
+                                modifier = modifier.weight(1f),
+                                textAlign = TextAlign.End
+                            )
+                        }
+                        Spacer(modifier = modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Tax (${checkoutDetails.taxPercentage}%):",
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.End
+                            )
+                            Text(
+                                "Rs.${checkoutDetails.tax}",
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.End
+                            )
+                        }
+                        Spacer(modifier = modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillParentMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Total:",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                "Rs.${checkoutDetails.totalPrice}",
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.End,
+                            )
                         }
                     }
-
+                    item {
+                        FilledTonalButton(
+                            onClick = onCheckout,
+                            modifier = modifier.fillParentMaxWidth(),
+                            enabled = checkoutDetails.enableCheckout
+                        ) {
+                            Text("Checkout", modifier = modifier)
+                        }
+                    }
                 }
             }
         }

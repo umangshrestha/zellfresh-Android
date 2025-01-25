@@ -4,13 +4,23 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
@@ -33,8 +43,11 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -49,6 +62,9 @@ import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.ObserveAsEvents
 import com.zellfresh.ui.components.products.ProductsScreen
 import com.zellfresh.ui.components.products.ProductsViewModel
+import com.zellfresh.ui.components.profile.AddressForm
+import com.zellfresh.ui.components.profile.ContactDetailsForm
+import com.zellfresh.ui.components.profile.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,6 +75,7 @@ fun MainScreen(
     productsViewModel: ProductsViewModel = viewModel(),
     cartsViewModel: CartsViewModel = viewModel(),
     accountViewModel: AccountViewModel = viewModel(),
+    profileViewModel: ProfileViewModel = viewModel(),
 ) {
     val appName = stringResource(id = R.string.app_name)
     val navController = rememberNavController()
@@ -67,6 +84,7 @@ fun MainScreen(
 
     val accountDetails by accountViewModel.accountDetails.collectAsState()
     val cartList by cartsViewModel.carts.collectAsState()
+    val profile by profileViewModel.profile.collectAsState()
 
 
     ZellfreshTheme {
@@ -89,7 +107,8 @@ fun MainScreen(
             flow = accountViewModel.accountDetails
         ) {
             scope.launch {
-                cartsViewModel.getCarts()
+                launch { cartsViewModel.getCarts() }
+                launch { profileViewModel.getProfile() }
             }
         }
 
@@ -210,6 +229,152 @@ fun MainScreen(
                         },
                         modifier = modifier
                     )
+                }
+                composable(route = "address") {
+                    AddressForm(profileViewModel = profileViewModel, modifier = modifier)
+                }
+                composable(route = "contact") {
+                    ContactDetailsForm(profileViewModel = profileViewModel, modifier = modifier)
+                }
+                composable(route = "checkout") {
+                    LazyColumn {
+                        item {
+                            Row(
+                                modifier = modifier.fillParentMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Contact Information",
+                                    modifier = modifier,
+                                    textAlign = TextAlign.Center,
+                                    style = typography.headlineLarge
+                                )
+                                OutlinedButton(onClick = {
+                                    navController.navigate("address")
+                                }) {
+                                    Text("Edit")
+                                }
+                            }
+                        }
+                        item {
+                            Column(modifier = modifier.padding(16.dp)) {
+                                Row {
+                                    Text(
+                                        text = "Name",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.name.ifBlank { "N/A" },
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+
+                                }
+                                Spacer(modifier = modifier.height(8.dp))
+                                Row {
+                                    Text(
+                                        text = "Phone",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.phone.ifBlank { "N/A" },
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+
+                                }
+                                Spacer(modifier = modifier.height(8.dp))
+                                Row {
+
+                                    Text(
+                                        text = "Email",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.email.ifBlank { "N/A" },
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            Row(
+                                modifier = modifier.fillParentMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Address Details",
+                                    modifier = modifier,
+                                    textAlign = TextAlign.Center,
+                                    style = typography.headlineLarge
+                                )
+                                OutlinedButton(onClick = {
+                                    navController.navigate("contact")
+                                }) {
+                                    Text("Edit")
+                                }
+                            }
+                        }
+                        item {
+                            Column(modifier = modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    Text(
+                                        text = "Apt",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.apt.ifBlank { "-" },
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                                Spacer(modifier = modifier.height(8.dp))
+                                Row(
+                                    modifier = modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = "Street",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.street.ifBlank { "N/A" },
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                                Spacer(modifier = modifier.height(8.dp))
+                                Row(
+                                    modifier = modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    Text(
+                                        text = "Additional Information",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = profileViewModel.additionalInfo,
+                                        modifier = modifier.weight(1f),
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
                 }
                 composable(route = "orders") {
                     OrdersScreen(

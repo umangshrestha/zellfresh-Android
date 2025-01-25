@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo.ApolloClient
 import com.zellfresh.client.PutAddressMutation
-import com.zellfresh.client.apollo.dto.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -14,50 +13,48 @@ import com.zellfresh.client.PutUserMutation
 import com.zellfresh.ui.components.notification.NotificationController
 import com.zellfresh.ui.components.notification.NotificationEvent
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val apolloClient: ApolloClient
 ) : ViewModel() {
 
-    private var addressId: String? = null
-
-    private val _profile = MutableStateFlow<Result<ProfileQuery.Me>>(Result.Loading())
+    private val _profile = MutableStateFlow<ProfileQuery.Me?>(null)
     val profile = _profile
 
     suspend fun getProfile() {
         val response = apolloClient.query(ProfileQuery()).execute()
-        val result = response.data?.me ?: ProfileQuery.Me(
-            email = "",
-            name = "",
-            phone = "",
-            defaultAddress = null
-        )
-        if (result.defaultAddress != null) {
+        val result = response.data?.me
+        if (result?.defaultAddress != null) {
             addressId = result.defaultAddress.addressId
         }
-        _profile.value = Result.Success(result)
+
+        _profile.value = result
     }
 
-    fun putAddress(
-        apt: String?,
-        street: String,
-        zip: String,
-        additionalInfo: String?,
-        city: String = "Bengaluru",
-        state: String = "Karnataka",
-        country: String = "India"
-    ) {
+    /* Address */
+    var addressId by mutableStateOf<String?>(null)
+    var apt by mutableStateOf("")
+    var street by mutableStateOf("")
+    var zip by mutableStateOf("")
+    var additionalInfo by mutableStateOf("")
+
+    fun putAddress() {
         viewModelScope.launch {
+
             val response = apolloClient.mutation(
                 PutAddressMutation(
                     addressId = Optional.Present(addressId),
                     apt = Optional.Present(apt),
-                    city = city,
                     street = street,
-                    state = state,
                     zip = zip,
-                    country = country,
+                    city = "Bengaluru",
+                    state = "Karnataka",
+                    country = "India",
                     additionalInfo = Optional.Present(additionalInfo),
                 )
             ).execute()
@@ -69,11 +66,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun putUser(
-        name: String,
-        email: String,
-        phone: String
-    ) {
+    /* User */
+    var name by mutableStateOf<String>("")
+    var email by mutableStateOf("")
+    var phone by mutableStateOf("")
+
+    fun putUser() {
         viewModelScope.launch {
             val response = apolloClient.mutation(
                 PutUserMutation(

@@ -15,6 +15,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 
 import javax.inject.Inject
 
+private fun defaultCheckoutDetails() = ListCartsQuery.CheckoutDetails(
+    subTotal =0.0,
+    totalPrice = 0.0,
+    tax=0.0,
+    deliveryPrice = 0.0,
+    taxPercentage = 0.0,
+    enableCheckout = false
+)
+
 @HiltViewModel
 class CartsViewModel @Inject constructor(
     private val apolloClient: ApolloClient
@@ -27,10 +36,7 @@ class CartsViewModel @Inject constructor(
     val cartCount = _cartCount
 
     private val _checkoutDetails = MutableStateFlow(
-        ListCartsQuery.CheckoutDetails(
-            0.0,
-            false
-        )
+        defaultCheckoutDetails()
     )
 
     val checkoutDetails = _checkoutDetails
@@ -45,10 +51,7 @@ class CartsViewModel @Inject constructor(
             val newProducts = response.data?.cart?.items ?: emptyList()
             _cartCount.value = response.data?.cart?.count ?: 0
             _checkoutDetails.value =
-                response.data?.cart?.checkoutDetails ?: ListCartsQuery.CheckoutDetails(
-                    0.0,
-                    false
-                )
+                response.data?.cart?.checkoutDetails ?: defaultCheckoutDetails()
             _carts.value = Result.Success(newProducts)
         }
     }

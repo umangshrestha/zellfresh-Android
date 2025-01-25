@@ -101,7 +101,6 @@ fun CategoriesScreenSuccess() {
         Category(
             name = it.toString(),
             imageUrl = "",
-            navigateUrl = "",
         )
     }), {})
 }
