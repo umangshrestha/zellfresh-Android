@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
@@ -50,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.zellfresh.client.google.GoogleLoginButton
 import com.zellfresh.client.http.AccountViewModel
@@ -85,7 +88,7 @@ fun MainScreen(
     val accountDetails by accountViewModel.accountDetails.collectAsState()
     val cartList by cartsViewModel.carts.collectAsState()
     val profile by profileViewModel.profile.collectAsState()
-
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     ZellfreshTheme {
         ObserveAsEvents(flow = NotificationController.notifications) {
@@ -112,62 +115,77 @@ fun MainScreen(
             }
         }
 
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }, topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = appName,
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.clickable(onClick = {
-                            navController.navigate("home")
-                        })
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = appName,
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.clickable(onClick = {
+                                navController.navigate("home")
+                            })
+                        )
+                    },
+                    navigationIcon = {
+                        if (navBackStackEntry?.destination?.route != "home") {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.primary,
+                        titleContentColor = Color.White
+                    ),
+                )
+            },
+            modifier = modifier.fillMaxSize(),
+            bottomBar = {
+                NavigationBar(
+                    modifier = modifier
+                ) {
+                    val cartCount = cartsViewModel.cartCount.collectAsState()
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "orders",
+                        onClick = { navController.navigate("orders") },
+                        icon = {
+                            Image(
+                                painter = painterResource(R.drawable.shoppingbag),
+                                contentDescription = "orders",
+                                modifier = modifier.size(32.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        },
                     )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White
-                ),
-            )
-        }, modifier = modifier.fillMaxSize(), bottomBar = {
-            NavigationBar(
-                modifier = modifier
-            ) {
-                val cartCount = cartsViewModel.cartCount.collectAsState()
-                NavigationBarItem(
-                    selected = navController.currentDestination?.route == "orders",
-                    onClick = { navController.navigate("orders") },
-                    icon = {
-                        Image(
-                            painter = painterResource(R.drawable.shoppingbag),
-                            contentDescription = "orders",
-                            modifier = modifier.size(32.dp),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                        )
-                    },
-                )
-                NavigationBarItem(
-                    selected = navController.currentDestination?.route == "profile",
-                    onClick = { navController.navigate("profile") },
-                    icon = {
-                        Image(
-                            painter = painterResource(R.drawable.account),
-                            contentDescription = "profile",
-                            modifier = modifier.size(32.dp),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                        )
-                    },
-                )
-                NavigationBarItem(
-                    selected = navController.currentDestination?.route == "cart",
-                    onClick = { navController.navigate("cart") },
-                    icon = {
-                        CartIcon(
-                            cartCount = cartCount.value, modifier = modifier.size(32.dp)
-                        )
-                    },
-                )
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "profile",
+                        onClick = { navController.navigate("profile") },
+                        icon = {
+                            Image(
+                                painter = painterResource(R.drawable.account),
+                                contentDescription = "profile",
+                                modifier = modifier.size(32.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        },
+                    )
+                    NavigationBarItem(
+                        selected = navController.currentDestination?.route == "cart",
+                        onClick = { navController.navigate("cart") },
+                        icon = {
+                            CartIcon(
+                                cartCount = cartCount.value, modifier = modifier.size(32.dp)
+                            )
+                        },
+                    )
+                }
             }
-        }) { innerPadding ->
+        ) { innerPadding ->
             NavHost(
                 navController = navController,
                 startDestination = "home",
@@ -248,10 +266,10 @@ fun MainScreen(
                                     "Contact Information",
                                     modifier = modifier,
                                     textAlign = TextAlign.Center,
-                                    style = typography.headlineLarge
+                                    style = MaterialTheme.typography.headlineLarge
                                 )
                                 OutlinedButton(onClick = {
-                                    navController.navigate("address")
+                                    navController.navigate("contact")
                                 }) {
                                     Text("Edit")
                                 }
@@ -312,7 +330,7 @@ fun MainScreen(
                                     "Address Details",
                                     modifier = modifier,
                                     textAlign = TextAlign.Center,
-                                    style = typography.headlineLarge
+                                    style = MaterialTheme.typography.headlineLarge
                                 )
                                 OutlinedButton(onClick = {
                                     navController.navigate("contact")
